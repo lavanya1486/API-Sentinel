@@ -1,0 +1,77 @@
+spring:
+  application:
+    name: api-sentinel
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/apisentinel}
+    username: ${SPRING_DATASOURCE_USERNAME:apisentinel}
+    password: ${SPRING_DATASOURCE_PASSWORD:apisentinel_dev}
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:12}
+      minimum-idle: 2
+      connection-timeout: 5000
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        format_sql: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+server:
+  forward-headers-strategy: framework
+  port: ${PORT:8080}
+  shutdown: graceful
+  max-http-request-header-size: 16KB
+  error:
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+  info:
+    env:
+      enabled: false
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+app:
+  security:
+    # Development fallback only. Override both secrets with independent random values in every deployed environment.
+    jwt-secret: ${JWT_SECRET:development-only-change-this-jwt-secret-before-deploying-apisentinel}
+    encryption-key: ${APP_ENCRYPTION_KEY:MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=}
+    token-ttl-minutes: ${JWT_TTL_MINUTES:15}
+    trust-proxy-headers: ${TRUST_PROXY_HEADERS:false}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+  monitoring:
+    scan-delay-ms: ${MONITOR_SCAN_DELAY_MS:5000}
+    max-concurrent-checks: ${MONITOR_MAX_CONCURRENT_CHECKS:8}
+    history-retention-days: ${HISTORY_RETENTION_DAYS:90}
+    max-response-bytes: 65536
+  notifications:
+    scan-delay-ms: ${NOTIFICATION_SCAN_DELAY_MS:5000}
+    max-attempts: 5
+    base-backoff-seconds: 5
+
+logging:
+  level:
+    root: INFO
+    dev.apisentinel: INFO
+    org.springframework.security: WARN
